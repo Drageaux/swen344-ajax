@@ -6,33 +6,38 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 
-<body class="container">
+<body class="container-fluid">
+
 <h1>AJAX Activity</h1>
-<div class="container">
-    <strong>Click to load malformed JSON file</strong><br>
-    <button class="btn btn-danger" id="bad-json-btn"
-            onclick="loadJson('data.json.txt', '#bad-json')">Malformed JSON
-    </button>
-    <div id="bad-json"></div>
-    <hr>
 
-    <strong>Click to load properly formed JSON file</strong><br>
-    <button class="btn btn-success" id="good-json-btn"
-            onclick="loadJson('data2.json.txt', '#good-json')">Properly formed JSON
-    </button>
-    <div id="good-json"></div>
-    <hr>
+<div class="row">
+    <div class="col-8">
+        <h4>Click to load malformed JSON file</h4>
+        <button class="btn btn-danger" id="bad-json-btn"
+                onclick="loadJson('data.json.txt', '#bad-json')">Malformed JSON
+        </button>
+        <div id="bad-json"></div>
+        <hr>
 
-    <strong>RSS feed</strong><br>
-    <div id="rss-feed">
-        Loading news...
+        <h4>Click to load properly formed JSON file</h4>
+        <button class="btn btn-success" id="good-json-btn"
+                onclick="loadJson('data2.json.txt', '#good-json')">Properly formed JSON
+        </button>
+        <div id="good-json"></div>
+        <hr>
+
+        <h4>Click to load random info generator</h4>
+        <button class="btn" id="random-info-btn">Load</button>
+
+        <div id="random-info"></div>
     </div>
-    <hr>
 
-    <strong>Click to load random info generator</strong><br>
-    <button class="btn" id="random-info-btn">Load</button>
-
-    <div id="random-info"></div>
+    <div class="col-4">
+        <h4>ESPN RSS Feed</h4>
+        <div class="card" id="rss-feed">
+            Loading news...
+        </div>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"
@@ -42,17 +47,16 @@
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6SpejstrongU02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 <script>
-    function loadJson(url, selector, callback) {
+    function loadJson(url, selector) {
         $.ajax({
             url: url,
             success: (result) => {
                 try {
                     let parsedResult = JSON.parse(result);
                     $(selector).html(result);
-                    callback()
                 } catch (e) {
                     $(selector).innerText = '[ERROR] Error loading content';
                     alert('[ERROR] Error loading content');
@@ -65,37 +69,51 @@
         });
     }
 
-    function loadRss(url, selector){
-        console.log("obj = " +obj);
-        var items = obj.querySelectorAll("item");
+    function loadRss(url, selector) {
+        $.ajax({
+            url: url,
+            success: (result) => {
+                displayRss(result, selector);
+            },
+            error: (err) => {
+                $(selector).innerText = '[ERROR] Error loading content';
+                alert('[ERROR] Error loading content')
+            }
+        });
+
+    }
+
+    function displayRss(obj, selector) {
+        console.log("obj = " + obj);
+        let items = obj.querySelectorAll("item");
 
         //show the logo
-        var html = "";
-        for (var i=0;i<items.length;i++){
+        let html = "";
+        for (let i = 0; i < items.length; i++) {
             //get the data out of the item
-            var newsItem = items[i];
-            var title = newsItem.querySelector("title").firstChild.nodeValue;
-            console.log(title);
-            var description = newsItem.querySelector("description").firstChild.nodeValue;
-            var link = newsItem.querySelector("link").firstChild.nodeValue;
-            var pubDate = newsItem.querySelector("pubDate").firstChild.nodeValue;
+            let newsItem = items[i];
+            let title = newsItem.querySelector("title").firstChild.nodeValue;
+            let description = newsItem.querySelector("description").firstChild.nodeValue;
+            let link = newsItem.querySelector("link").firstChild.nodeValue;
+            let pubDate = newsItem.querySelector("pubDate").firstChild.nodeValue;
 
             //present the item as HTML
-            var line = '<div class="item">';
-            line += "<h2>"+title+"</h2>";
-            line += '<p><i>'+pubDate+'</i> - <a href="'+link+'" target="_blank">See original</a></p>';
-            //title and description are always the same (for some reason) so I'm only including one
-            //line += "<p>"+description+"</p>";
-            line += "</div>";
+            let line = '<div class="card-body" style="padding: 0.5rem !important;">';
+            line += '<strong class="card-title">' + title + '</strong><br>';
+            line += '<p class="card-text"><i>' + pubDate + '</i> - <a href="' + link + '" target="_blank">See original</a></p>';
+            line += '</div>';
+            line += '<hr style="margin-top: 1px; margin-bottom: 1px;">';
 
             html += line;
         }
-        $(selector).innerHTML = html;
+        $(selector).html(html);
+
+        $(selector).fadeIn(1000);
     }
 
     $(document).ready(() => {
         $('#rss-feed').fadeOut(250);
-        loadJson('http://www.espn.com/espn/rss/NHL/news', '', loadRss(#rss-feed));
+        loadRss('http://www.espn.com/espn/rss/NHL/news', '#rss-feed');
 
 
     });
