@@ -6,23 +6,39 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 
-<body class="container-fluid">
+<body class="container">
 
 <h1>AJAX Activity</h1>
 
 <div class="row">
-    <div class="col-8">
+    <div class="col-md-8" style="padding-bottom: 50px;">
         <h4>Click to load malformed JSON file</h4>
-        <button class="btn btn-danger" id="bad-json-btn"
-                onclick="loadJson('data.json.txt', '#bad-json')">Malformed JSON
-        </button>
+        <form class="form" id="bad-json-form">
+            <select class="form-control" style="margin-bottom: 5px;">
+                <option value="name">Name</option>
+                <option value="country">Country</option>
+                <option value="age">Age</option>
+                <option value="class">Class</option>
+            </select>
+            <button class="btn btn-danger" id="bad-json-btn"
+                    type="submit">Malformed JSON
+            </button>
+        </form>
         <div id="bad-json"></div>
         <hr>
 
         <h4>Click to load properly formed JSON file</h4>
-        <button class="btn btn-success" id="good-json-btn"
-                onclick="loadJson('data2.json.txt', '#good-json')">Properly formed JSON
-        </button>
+        <form class="form" id="good-json-form">
+            <select class="form-control" style="margin-bottom: 5px;">
+                <option name="name" value="name">Name</option>
+                <option name="country" value="country">Country</option>
+                <option name="age" value="age">Age</option>
+                <option name="class" value="class">Class</option>
+            </select>
+            <button class="btn btn-success" id="good-json-btn"
+                    type="submit">Properly formed JSON
+            </button>
+        </form>
         <div id="good-json"></div>
         <hr>
 
@@ -32,7 +48,7 @@
         <div id="random-info"></div>
     </div>
 
-    <div class="col-4">
+    <div class="col-md-4">
         <h4>ESPN RSS Feed</h4>
         <div class="card" id="rss-feed">
             Loading news...
@@ -50,13 +66,16 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 <script>
-    function loadJson(url, selector) {
+    function loadJson(url, property, selector) {
         $.ajax({
             url: url,
             success: (result) => {
                 try {
                     let parsedResult = JSON.parse(result);
-                    $(selector).html(result);
+                    let html = '<strong style="text-transform:capitalize">' + property + ':</strong> ';
+                    html += parsedResult[property];
+                    console.log(property)
+                    $(selector).html(html);
                 } catch (e) {
                     $(selector).innerText = '[ERROR] Error loading content';
                     alert('[ERROR] Error loading content');
@@ -87,7 +106,6 @@
         console.log("obj = " + obj);
         let items = obj.querySelectorAll("item");
 
-        //show the logo
         let html = "";
         for (let i = 0; i < items.length; i++) {
             //get the data out of the item
@@ -115,7 +133,18 @@
         $('#rss-feed').fadeOut(250);
         loadRss('http://www.espn.com/espn/rss/NHL/news', '#rss-feed');
 
-
+        // prevent submission reload
+        $('.form').submit(function (e) {
+            e.preventDefault();
+        });
+        $('#bad-json-form').submit((e) => {
+            let property = $('#bad-json-form select')[0].value;
+            loadJson('data.json.txt', property, '#bad-json');
+        });
+        $('#good-json-form').submit((e) => {
+            let property = $('#good-json-form select')[0].value;
+            loadJson('data2.json.txt', property, '#good-json');
+        });
     });
 </script>
 </body>
