@@ -1,1 +1,1 @@
-{"name": "John Stamos", "country": "Full House"}
+{"name": "David Thong Nguyen", "country": "Vietnam", "age": "23", "class": "SWEN-344"}
